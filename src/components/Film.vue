@@ -19,7 +19,6 @@
             Ocena: {{ film.ocena }}
             <p v-if="film.besplatan">Film je besplatan</p>
             <p v-else>Cena: {{ film.cena }}</p>
-            <!-- <button  @click="idiNaFilm(film.id)"  size="sm" class="my-2 my-sm-0">Idi na film</button> -->
           </b-card-text>
         </b-card>
       </li>

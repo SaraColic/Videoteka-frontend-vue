@@ -10,6 +10,7 @@ import Epizoda from '../views/Epizoda.vue'
 import Login from '../views/Login.vue'
 import SingUp from '../views/SingUp.vue'
 import Zanr from '../views/Zanr.vue'
+import Search from '../views/Search.vue'
 
 Vue.use(VueRouter)
 
@@ -64,6 +65,11 @@ const routes = [
     name: 'Zanr',
     component: Zanr
   },
+  {
+    path: '/search',
+    name: 'Search',
+    component: Search
+  }
  
 ]
 

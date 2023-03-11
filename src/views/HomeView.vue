@@ -1,6 +1,5 @@
 <template>
   <div class="home bg-gradient text-white">
-    <!-- <img alt="Vue logo" height="100px" width="200px" src="../assets/vvv.png"> -->
     <br/><p class="sfp">Serije sa Prevodom | Filmovi sa Prevodom | Vaša online Videoteka</p>
     <hr>
     <b-container class="bv-example-row" fluid>
@@ -28,25 +27,7 @@ export default {
     Serija
   },
 
-  // props: {
-  //   zanrovi: String
-  // },
-
-  // computed: {
-  //   ...mapState([
-  //       'zanrovi'
-  //   ])
-  // },
-
-  // mounted(){
-  //   this.getZanrovi();
-  // },
-
-  // methods: {
-  //   ...mapActions([
-  //       'getZanrovi'
-  //   ])
-  // }
+  
 }
 </script>
 
