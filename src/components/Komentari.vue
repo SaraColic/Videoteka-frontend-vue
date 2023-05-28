@@ -92,7 +92,7 @@
   
   
    .home{
-      background-color: #201050!important;
+      background-color: #000000!important;
    }
   
    .kom{
@@ -100,7 +100,7 @@
    }
   
    .text-light{
-        background-color: #201050!important;
+        background-color: #000000!important;
         
     }
     .ko{

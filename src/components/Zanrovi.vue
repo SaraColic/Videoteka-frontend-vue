@@ -1,8 +1,9 @@
 <template>
     <div>
-      <b-card class="zanrovi text-light" no-body header="ŽANROVI" >
-          <b-list-group v-for="zanr in zanrovi" :key="zanr.zanroviId">
-          <div  @click="idiNaZanr(zanr.id)"><b-list-group-item class="text-light" href="#"> {{ zanr.naziv }} </b-list-group-item></div>
+      <b-card class="text-light" no-body>
+          <div class="zanr"><b>ŽANROVI</b></div>
+          <b-list-group class="zanrovi" v-for="zanr in zanrovi" :key="zanr.zanroviId">
+          <div  @click="idiNaZanr(zanr.id)"><b-list-group-item class="text-light" to="#"> {{ zanr.naziv }} </b-list-group-item></div>
           </b-list-group>
       </b-card>
     </div>
@@ -44,8 +45,8 @@ export default {
     ]),
 
     idiNaZanr(id){
-      console.log("dfghjk")
         this.$router.push({ name: 'Zanr', params: { id: id } });
+
     }
   }
   
@@ -64,14 +65,19 @@ export default {
   margin-left: 10%;
 }
 
-.zanrovi {
-  border: none;
-  background-color: #201050!important;
-  color: rgb(192, 187, 187) !important;
-  padding: 0rem 7rem 7rem 5rem;
+.zanr{
+  border: outset rgb(174, 9, 9);
+  padding: 8px 0px;
+  color: rgb(192, 187, 187);
+  
 }
 
 .text-light{
-  background-color: #201050!important;
+  background-color: #000000!important;
+}
+
+.zanrovi{
+  font-style: italic;
+  text-align: center;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div class="home bg-gradient text-white">
       <br/><br/>
-      <div>
+      <div v-if="film!==undefined">
       <b-container>
         <b-row>
           <b-col> <b-card
@@ -22,31 +22,51 @@
             <b-icon icon="clock" class="text-center" font-scale="0.8" shift-v="1"></b-icon> {{ film.trajanje }} |
             <b-icon icon="calendar-date" class="text-center" font-scale="0.8" shift-v="1"></b-icon> {{ film.godina }}
             <br/><br/>Opis: {{ film.opis }}
-            <br/><br/>Direktor: {{ film.direktor.ime }} | Glumci: <div style="display: inline" v-for="glumac in glumci" :key="glumac.glumacId">{{ glumac.glumac.ime }}, </div>
+            <br/><br/>Direktor: {{ film.direktor.ime }} {{ film.direktor.prezime }} | Glumci: <div style="display: inline" v-for="glumac in glumci" :key="glumac.glumacId">{{ glumac.glumac.ime }}, </div>
             <br/><br/>
             <div v-if="film.besplatan"><b> Film mozete gledati besplatno. </b></div>
-            <div v-else>Cena: {{ film.cena }} rsd => <b-button variant="danger"> Dodaj u korpu</b-button></div>
+            <div v-else>Cena: {{ film.cena }} rsd <div v-if="token==false"><p style="color: rgb(187, 53, 53)">Ulogujte se da biste dodali u korpu</p></div>
+            <div v-else>
+              <div v-if="daLiPostojiUKorpi">Vec postoji u korpi</div>
+              <div v-else-if="daLiPostojiUIznajmljenima">Film ste vec iznajmili</div>
+              <div v-else><b-button @click="dodajUKorpu" variant="danger"> Dodaj u korpu</b-button></div>
+            </div>
+          </div>
 
           </b-col>
         </b-row> <br/>
 
         <b-row>
           <b-col>
-            <div>
+            <div v-if="token==false && film.besplatan==false">
+              <br>
+              <p style="color: rgb(187, 53, 53)">Ulogujte se da biste gledali film </p>
+            </div>
+            <div v-else-if="token==false && film.besplatan==true">
               <section>
                 <b-embed
-                  type="iframe"
-                  aspect="16by9"
-                  width="1160"
-                  height="715"
+                  type="iframe" aspect="16by9" width="1160" height="715"
                   :src="film.video"
-                  title="YouTube video player"
-                   frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  title="YouTube video player" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowfullscreen
                 ></b-embed>
               </section>
             </div>
+            
+            <div v-else-if="token && daLiPostojiUKorpi==true">Film se nalazi u korpi. Morate ga platiti da biste gledali </div>
+            <div v-else-if="token && (film.besplatan==true || daLiPostojiUIznajmljenima==true)">
+              <section>
+                <b-embed
+                  type="iframe" aspect="16by9" width="1160" height="715"
+                  :src="film.video"
+                  title="YouTube video player" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></b-embed>
+              </section>
+            </div>
+            <div v-else>Morate platiti film da biste gledali. Dodajte film u Vasu korpu</div>
             <hr>
           </b-col>
         </b-row>
@@ -60,7 +80,7 @@
   
 <script>
 
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapMutations} from 'vuex';
 import Komentari from '@/components/Komentari.vue'
 
   export default {
@@ -78,7 +98,12 @@ import Komentari from '@/components/Komentari.vue'
     computed: {
       ...mapState([
         'film',
-        'glumci'
+        'glumci',
+        'token',
+        'korisnik',
+        'korpa',
+        'daLiPostojiUKorpi',
+        'daLiPostojiUIznajmljenima'
       ]),
      
     },
@@ -88,6 +113,8 @@ import Komentari from '@/components/Komentari.vue'
         this.id = this.$route.params.id;
         this.getFilm(this.id)
         this.getGlumiUFilmu(this.id)
+        this.getFilmIzKorpe(this.id)
+        this.getFilmIzIznajmljenih(this.id)
       }
     },
     
@@ -95,14 +122,43 @@ import Komentari from '@/components/Komentari.vue'
         this.id = this.$route.params.id
         this.getFilm(this.id);
         this.getGlumiUFilmu(this.id)
+        this.getFilmIzKorpe(this.id)
+        this.getFilmIzIznajmljenih(this.id)
     },
 
     methods: {
 
       ...mapActions([
           'getFilm',
-          'getGlumiUFilmu'
+          'getGlumiUFilmu',
+          'getFilmoviKorpa',
+          'postFilmoviKorpa',
+          'getFilmIzKorpe',
+          'getFilmIzIznajmljenih'
       ]),
+
+      ...mapMutations([
+          'ukupnaCena'
+      ]),
+
+      dodajUKorpu(e) {
+        e.preventDefault();
+        
+        const data={
+          filmId: this.id
+        }
+     // console.log(this.daLiPostojiUKorpi)
+        // if(this.daLiPostojiUKorpi==true){
+
+        //   alert('Vec ste dodali u korpu')
+        // }else{
+          this.postFilmoviKorpa(data)
+        //}
+        
+        
+      },
+
+      
 
     }
   }
@@ -114,7 +170,7 @@ import Komentari from '@/components/Komentari.vue'
  }
 
  .home{
-    background-color: #201050!important;
+    background-color: #000000!important;
 
  }
 

@@ -11,10 +11,22 @@ export default new Vuex.Store({
     epizode: [],
     komentari: [],
     film: {},
+    searchFilmovi: [],
+    searchSerije: [],
+    searchAktivan: false,
     serija: {},
     epizoda: {},
     token: '',
-    glumci: {}
+    glumci: {},
+    korpa: [],
+    cena: 0,
+    iznajmljeni: [],
+    filmoviIstogZanra: [],
+    serijeIstogZanra: [],
+    sezone: [],
+    epizodeIsteSezone: [],
+    daLiPostojiUKorpi: false,
+    daLiPostojiUIznajmljenima: false
   },
   mutations: {
     dodajFilmove(state, filmovi) {
@@ -62,16 +74,111 @@ export default new Vuex.Store({
       localStorage.token='';
     },
 
+    dodajSearchFilmovi(state, searchFilmovi){
+      state.searchFilmovi = searchFilmovi;
+    },
+
+    dodajSearchSerije(state, searchSerije){
+      state.searchSerije = searchSerije;
+    },
+
+    aktivirajSearch(state){
+      state.searchAktivan = true;
+    },
+
+    deaktivirajSearch(state){
+      state.searchAktivan = false;
+    },
+
     dodajGlumiUFilmu(state, glumci){
       // state.film.glumci = glumci;
       state.glumci=glumci;
-      console.log(state.film)
-      console.log(state.film.glumci)
+      //console.log(state.film)
+      //console.log(state.film.glumci)
 
     },
     dodajGlumiUSeriji(state, glumci){
       // state.serija.glumci = glumci;
       state.glumci=glumci;
+    },
+
+    dodajFilmUKorpu(state, filmZaKorpu){
+      state.korpa.push(filmZaKorpu);
+    },
+
+    dodajSerijuUKorpu(state, serijaZaKorpu){
+      state.korpa.push(serijaZaKorpu);
+    },
+
+    kreirajKorpu(state, korpa){
+      state.korpa = korpa;
+    },
+
+    cenaNula(state){
+      state.cena = 0
+    //  alert(state.cena);
+    },
+
+    umanjiCenu(state, broj){
+      state.cena = state.cena - broj
+    },
+
+    // ukupnaCena(state,cena){
+    //   state.cena = state.cena + cena;
+    // },
+
+    // briseCenuFilma(state,cena){
+    //   state.cena = state.cena - cena;
+    // },
+
+    setCena(state, cena){
+      state.cena = cena;
+    },
+     
+    dodajFilmoveZanra(state, filmoviIstogZanra){
+      state.filmoviIstogZanra = filmoviIstogZanra;
+    },
+
+    dodajSerijeZanra(state, serijeIstogZanra){
+      state.serijeIstogZanra = serijeIstogZanra;
+    },
+
+    dodajUIznajmljene(state, iznajmljeni){
+      state.iznajmljeni.push(iznajmljeni);
+
+    },
+
+    kreirajIznajmljene(state, iznajmljeni){
+      state.iznajmljeni = iznajmljeni;
+    },
+
+    briseItemIzKorpe(state, id){
+      state.korpa.splice(id, 1)
+    },
+    
+    briseKorpu(state){
+      state.korpa = [];
+  //    alert(state.korpa);
+    },
+
+    dodajEpSezone(state, epizodeIsteSezone){
+      state.epizodeIsteSezone = epizodeIsteSezone;
+    },
+
+    daLiPostojiUKorpi(state){
+      state.daLiPostojiUKorpi = true
+    },
+
+    deakrivirajDaLiPostojiUKorpi(state){
+      state.daLiPostojiUKorpi = false
+    },
+
+    daLiPostojiUIznajmljenima(state){
+      state.daLiPostojiUIznajmljenima = true
+    },
+
+    deaktDaLiPostojiUIznajmljenima(state){
+      state.daLiPostojiUIznajmljenima = false
     },
 
     // addComment(state, obj) {
@@ -82,7 +189,6 @@ export default new Vuex.Store({
     //   film.komentari.push(obj.komentar);
     // }
   },
-
 
 
   actions: {
@@ -155,6 +261,240 @@ export default new Vuex.Store({
       }
     },
 
+
+    getFilmoviKorpa({ commit }){
+        fetch(`http://127.0.0.1:8001/korpa/odKorisnika`,{
+          method: 'GET',
+          headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+        .then(obj => obj.json())
+        .then(e => {
+          commit('kreirajKorpu', e);
+          var cena = 0;
+          var item;
+          for (item in e){
+            if(e[item].serijaId == null){
+              cena = cena + e[item].film.cena;
+            }else if(e[item].filmId == null){
+              cena = cena + e[item].serija.cena;
+            }
+            
+          }
+          commit('setCena', cena);
+        })
+      
+    },
+
+        getFilmIzKorpe({commit}, id){
+          fetch(`http://127.0.0.1:8001/korpa/film/odKorisnika/${id}`,{
+            method: 'GET',
+            headers: {'Authorization': `Bearer ${localStorage.token}` }
+        })
+          .then(obj => obj.json())
+          .then(e => {
+            //console.log(e)
+            if(e){
+              commit('daLiPostojiUKorpi');
+            }
+          
+          })
+        
+      },
+
+      getSerijaIzKorpe({commit}, id){
+        fetch(`http://127.0.0.1:8001/korpa/serija/odKorisnika/${id}`,{
+          method: 'GET',
+          headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+        .then(obj => obj.json())
+        .then(e => {
+          //console.log(e)
+          if(e){
+            commit('daLiPostojiUKorpi');
+          }
+        
+        })
+      
+      },
+
+      getFilmIzIznajmljenih({commit}, id){
+        fetch(`http://127.0.0.1:8001/iznajmljeni/film/odKorisnika/${id}`,{
+          method: 'GET',
+          headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+        .then(obj => obj.json())
+        .then(e => {
+          console.log(e)
+          if(e){
+            commit('daLiPostojiUIznajmljenima');
+          }
+        
+        })
+
+      },
+
+      getSerijaIzIznajmljenih({commit}, id){
+        fetch(`http://127.0.0.1:8001/iznajmljeni/serija/odKorisnika/${id}`,{
+          method: 'GET',
+          headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+        .then(obj => obj.json())
+        .then(e => {
+          //console.log(e)
+          if(e){
+            commit('daLiPostojiUIznajmljenima');
+          }
+        
+        })
+
+      },
+
+    postFilmoviKorpa({commit}, data){
+      fetch(`http://127.0.0.1:8001/korpa/film`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.token}` },
+            body: JSON.stringify(data)
+        })
+        .then(obj => obj.json())
+        .then(e => {
+          if(e.msg){
+            alert("Nevalidni kredencijali");
+          }{
+            commit('dodajFilmUKorpu', e);
+            alert("Dodato u korpu!");
+          }
+        })
+        .catch(err => console.log(err))
+    },
+
+    postSerijeKorpa({commit}, data){
+      fetch(`http://127.0.0.1:8001/korpa/serija`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.token}` },
+            body: JSON.stringify(data)
+        })
+        .then(obj => obj.json())
+        .then(e => {
+          if(e.msg){
+            alert("Nevalidni kredencijali");
+          }{
+            commit('dodajSerijuUKorpu', e);
+            alert("Dodato u korpu!");
+          }
+        })
+        .catch(err => console.log(err))
+    },
+
+    deleteKorpa({commit}){
+      fetch(`http://127.0.0.1:8001/korpa/korisnik`,{
+        method: 'DELETE',
+        headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+      .then(obj => obj.json())
+      .then(e => {
+        if(e != 1){
+          alert("Greska");
+        }else{
+          commit('briseKorpu');
+          commit('cenaNula')
+         // alert("Obrisano");
+        }
+      })
+      .catch(err => console.log(err))
+    },
+
+    ukloniItemIzKorpe({commit}, item){
+        fetch(`http://127.0.0.1:8001/korpa/${item.id}`,{
+        method: 'DELETE',
+        headers: {'Authorization': `Bearer ${localStorage.token}` }
+      })
+      .then(obj =>{ obj.json()})
+      .then(e => {
+        console.log(e)
+     //   alert(e)
+      /*  if(e != 1){
+
+          alert("Greska");
+        }else{*/
+          commit('briseItemIzKorpe', item.id);
+          commit('umanjiCenu', item.cena);
+          alert("Obrisano");
+    //    }
+      })
+      
+      .catch(err => console.log(err))
+    },
+
+    postIznajmljeniFilm({ commit }, data){
+      fetch(`http://127.0.0.1:8001/iznajmljeni/film`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.token}` },
+            body: JSON.stringify(data)
+        })
+        .then(obj => obj.json())
+        .then(e => {
+          if(e.msg){
+            alert("Nevalidni kredencijali");
+          }{
+            commit('dodajUIznajmljene', e);
+          }
+        })
+        .catch(err => console.log(err))
+    },
+
+    postIznajmljeniSerija({ commit }, data){
+      fetch(`http://127.0.0.1:8001/iznajmljeni/serija`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.token}` },
+            body: JSON.stringify(data)
+        })
+        .then(obj => obj.json())
+        .then(e => {
+          if(e.msg){
+            alert("Nevalidni kredencijali");
+          }{
+            commit('dodajUIznajmljene', e);
+          }
+        })
+        .catch(err => console.log(err))
+    },
+
+    getIznajmljeni({ commit }){
+      fetch(`http://127.0.0.1:8001/iznajmljeni/odKorisnika`,{
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${localStorage.token}` }
+    })
+      .then(obj => obj.json())
+      .then(e => {
+        commit('kreirajIznajmljene', e);
+      })
+    
+  },
+
+
+    getFilmoviIstogZanra({ commit }, id){
+      fetch(`http://127.0.0.1:8001/filmovi/zanr/${id}`)
+      .then(obj => obj.json())
+      .then(e => {
+        commit('dodajFilmoveZanra', e);
+      })
+    
+  },
+
+    getSerijeIstogZanra({ commit }, id){
+      fetch(`http://127.0.0.1:8001/serije/zanr/${id}`)
+      .then(obj => obj.json())
+      .then(e => {
+        commit('dodajSerijeZanra', e);
+      })
+    
+  },
+
+
     getEpizoda({ commit, state }, id){
       const ep = state.epizode.filter( ep => ep.id == id )[0];
       if(ep){
@@ -198,8 +538,8 @@ export default new Vuex.Store({
       fetch('http://127.0.0.1:8001/filmovi/broj')
       .then(obj => obj.json())
       .then(e => {
-        console.log(e)
-        console.log(state.filmovi)
+        //console.log(e)
+        //console.log(state.filmovi)
         if(e != state.filmovi.length){
           fetch('http://127.0.0.1:8001/filmovi')
           .then(obj => obj.json())
@@ -208,6 +548,22 @@ export default new Vuex.Store({
           })
         }
         
+      })
+    },
+
+    getSearchFilmovi({commit}, query){
+      fetch(`http://127.0.0.1:8001/filmovi/search/${query}`)
+      .then(obj => obj.json())
+      .then(e => {
+        commit('dodajSearchFilmovi', e);
+      })
+    },
+
+    getSearchSerije({commit}, query){
+      fetch(`http://127.0.0.1:8001/serije/search/${query}`)
+      .then(obj => obj.json())
+      .then(e => {
+        commit('dodajSearchSerije', e);
       })
     },
 
@@ -246,6 +602,15 @@ export default new Vuex.Store({
       .then(obj => obj.json())
       .then(e => {
         commit('dodajKomentare', e);
+      })
+    },
+
+
+    getEpizodeSezone({commit}, id){
+      fetch(`http://127.0.0.1:8001/epizode/sezone/${id}`)
+      .then(obj => obj.json())
+      .then(e => {
+        commit('dodajEpSezone', e);
       })
     },
     

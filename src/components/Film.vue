@@ -1,27 +1,18 @@
 <template>
     <div class="film">
-      <div class="filmovi d-flex "><b> FILMOVI</b></div>
+      <div class="filmovi "><b> FILMOVI</b></div>
       <hr>
       <ul class="list-inline">
-        <li class="list-inline-item" v-for="film in filmovi" :key="film.filmoviId">
-        <b-card
-          :title="film.naziv"
-          :img-src="film.img"
-          img-alt="Image"
-          img-top
-          tag="article"
-          style="max-width: 13rem;"
-          class="mb-2"
-          href="#"
-          @click="idiNaFilm(film.id)"
-        >
-          <b-card-text>
-            Ocena: {{ film.ocena }}
-            <p v-if="film.besplatan">Film je besplatan</p>
-            <p v-else>Cena: {{ film.cena }}</p>
-          </b-card-text>
-        </b-card>
-      </li>
+        <div v-if="searchAktivan == false">
+          <li class="list-inline-item" v-for="film in filmovi" :key="film.filmoviId">
+            <Card :naziv="film.naziv" :img="film.img" :tip="film.tip" :ocena="film.ocena" :cena="film.cena" :id="film.id" :besplatan="film.besplatan"></Card>
+          </li></div>
+        
+        <div v-else>
+        <li class="list-inline-item" v-for="film in searchFilmovi" :key="film.filmoviSearchId">
+          <Card :naziv="film.naziv" :img="film.img" :tip="film.tip" :ocena="film.ocena" :cena="film.cena" :id="film.id" :besplatan="film.besplatan"></Card>
+        </li></div>
+
       </ul>
     </div>
 </template>
@@ -29,36 +20,38 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
+  import Card from '@/components/Card.vue'
 
   export default {
     name: 'Film',
 
-    props: {
-      //filmovi: Object
+    components: {
+        Card
     },
-
-    // data() {
-    //   film: null
-    // },
 
     computed: {
       ...mapState([
-        'filmovi'
+        'filmovi',
+        'searchFilmovi',
+        'searchAktivan'
       ])
     },
 
     mounted(){
-      this.getFilmovi();
+      //console.log(this.searchAktivan + " asdasdadad");
+      if(this.searchAktivan == true){
+        console.log("USO");
+        //this.getSearchFilmovi(this.$route.query);
+      }else{
+        this.getFilmovi();
+      }
     },
 
     methods: {
       ...mapActions([
-          'getFilmovi'
+          'getFilmovi',
+          'getSearchFilmovi'
       ]),
-
-      idiNaFilm(id){
-        this.$router.push({ name: 'Film', params: { id: id } });
-      }
     }
   }
 </script>
@@ -66,13 +59,16 @@
 <style>
 
   .filmovi{
-    border: outset rgb(137, 132, 132);
+    border: outset rgb(174, 9, 9);
     padding: 8px 16px;
     color: rgb(192, 187, 187);
   }
 
   .mb-2{
-    background-color: #201050!important;
+    background-color: #000000!important;
   }
+
+
+
 
 </style>

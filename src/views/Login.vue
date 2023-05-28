@@ -15,7 +15,7 @@
 
                         <b-form @submit="onSumbit">
 
-                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
+                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: rgb(0, 0, 0); border: none;">Sign into your account</h5>
 
                         <div class="form-outline mb-4">
                             <input id="form2Example17" v-model="form.username" class="form-control form-control-lg" />
@@ -89,6 +89,10 @@
 
 <style>
 .home{
-   background-color: #201050!important;
+   background-color: #000000!important;
+}
+
+.fw-normal{
+    background-color: #ffffff!important;
 }
 </style>

@@ -1,24 +1,17 @@
 <template>
     <div class="serija">
-      <div class="serije d-flex "><b> SERIJE</b></div>
+      <div class="serije "><b> SERIJE</b></div>
       <hr>
       <ul class="list-inline">
-        <li class="list-inline-item" v-for="ser in serije" :key="ser.serijeiId">
-        <b-card
-          :title="ser.naziv"
-          :img-src="ser.img"
-          img-alt="Image"
-          img-top
-          tag="article"
-          style="max-width: 13rem;"
-          class="mb-2"
-          @click="idiNaSeriju(ser.id)"
-        >
-          <b-card-text>
-            Ocena: {{ ser.ocena }}
-          </b-card-text>
-        </b-card>
-      </li>
+        <div v-if="searchAktivan == false">
+          <li class="list-inline-item" v-for="ser in serije" :key="ser.serijeiId">
+            <Card :naziv="ser.naziv" :img="ser.img" :tip="ser.tip" :ocena="ser.ocena" :cena="ser.cena" :id="ser.id" :besplatan="ser.besplatan"></Card>
+        </li></div>
+
+        <div v-else>
+          <li class="list-inline-item" v-for="ser in searchSerije" :key="ser.searchSerijeId">
+            <Card :naziv="ser.naziv" :img="ser.img" :tip="ser.tip" :ocena="ser.ocena" :cena="ser.cena" :id="ser.id" :besplatan="ser.besplatan"></Card>
+        </li></div>
       </ul>
       <hr>
     </div>
@@ -27,26 +20,30 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
+  import Card from '@/components/Card.vue'
 
   export default {
-    name: 'Film',
-
-    props: {
-      //filmovi: Object
+    name: 'Serija',
+   
+    components: {
+        Card
     },
-
-    // data() {
-    //   film: null
-    // },
 
     computed: {
       ...mapState([
-        'serije'
+        'serije',
+        'searchSerije',
+        'searchAktivan'
       ])
     },
 
     mounted(){
-      this.getSerije();
+      if(this.searchAktivan == true){
+        console.log("USO");
+        //this.getSearchFilmovi(this.$route.query);
+      }else{
+        this.getSerije();
+      }
     },
 
     methods: {
@@ -54,9 +51,6 @@
           'getSerije'
       ]),
 
-      idiNaSeriju(id){
-        this.$router.push({ name: 'Serija', params: { id: id } });
-      }
     }
   }
 </script>
@@ -64,9 +58,9 @@
 <style>
 
   .serije{
-    border: outset rgb(137, 132, 132);
+    border: outset rgb(174, 9, 9);
     padding: 8px 16px;
-    background-color: #201050!important;
+    background-color: #000000!important;
     color: rgb(192, 187, 187);
   }
 

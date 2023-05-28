@@ -2,7 +2,7 @@
     <div class="epizoda">
 
       <ul class="list-inline">
-      <li class="list-inline-item" v-for="ep in epizode" :key="ep.epizodeiId">
+      <li class="list-inline-item" v-for="ep in epizodeIsteSezone" :key="ep.epizodeId">
         <b-card
           :img-src="ep.img"
           img-alt="Image"
@@ -13,6 +13,7 @@
           @click="idiNaEpizodu(ep.id)"
         >
           <b-card-text>
+            Sezona {{ idSezone }}<br>
             Epizoda {{ ep.naziv }}
           </b-card-text>
 
@@ -31,23 +32,32 @@
     name: 'Epizoda',
 
     props: {
-      //filmovi: Object
+      idSezone: Number
     },
 
 
     computed: {
       ...mapState([
-        'epizode'
+        'epizode',
+        'epizodeIsteSezone'
       ])
     },
 
+    watch: {
+      idSezone() {
+      //   console.log('Ep: ' + this.idSezone)
+        this.getEpizodeSezone(this.idSezone);
+      }
+    },
+
     mounted(){
-      this.getEpizode();
+      this.getEpizodeSezone(this.idSezone);
     },
 
     methods: {
       ...mapActions([
-          'getEpizode'
+          'getEpizode',
+          'getEpizodeSezone'
       ]),
 
       idiNaEpizodu(id){
